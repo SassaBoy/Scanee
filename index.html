@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Question Paper Analyzer</title>
+</head>
+<body style="font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+
+    <div style="max-width: 600px; margin: 50px auto; text-align: center; background-color: #fff; padding: 20px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <h1 style="color: #333;">Question Paper Analyzer</h1>
+        <p style="color: #555;">Upload a screenshot or capture a photo of your question paper:</p>
+        
+        <input type="file" accept="image/*" id="imageInput" style="display: none;" />
+        <button onclick="document.getElementById('imageInput').click();" style="background-color: #3498db; color: #fff; padding: 10px 20px; border: none; cursor: pointer; margin: 10px 0;">Choose Image</button>
+
+        <button onclick="openCamera()" style="background-color: #27ae60; color: #fff; padding: 10px 20px; border: none; cursor: pointer; margin: 10px 0;">Scan</button>
+
+        <div id="resultArea" style="margin-top: 20px; color: #333; font-size: 16px;"></div>
+
+        <button onclick="correctMe()" style="background-color: #e74c3c; color: #fff; padding: 10px 20px; border: none; cursor: pointer; margin-top: 20px;">Correct Me</button>
+    </div>
+
+    <script>
+      // script.js
+
+let videoStream;
+
+function uploadImage() {
+    const imageInput = document.getElementById('imageInput');
+    const resultArea = document.getElementById('resultArea');
+
+    // Check if a file is selected
+    if (imageInput.files.length > 0) {
+        const selectedImage = imageInput.files[0];
+        displayImage(selectedImage);
+        resultArea.innerText = "Image selected. Click 'Correct Me' to analyze.";
+    } else {
+        resultArea.innerText = "Please choose an image first.";
+    }
+}
+
+function openCamera() {
+    const resultArea = document.getElementById('resultArea');
+    const videoContainer = document.createElement('div');
+    videoContainer.id = 'videoContainer';
+    resultArea.appendChild(videoContainer);
+
+    // Check for browser support
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function (stream) {
+                videoStream = stream;
+
+                // Create video element
+                const videoElement = document.createElement('video');
+                videoElement.id = 'cameraFeed';
+                videoElement.autoplay = true;
+                videoElement.srcObject = stream;
+
+                // Append video element to the container
+                videoContainer.appendChild(videoElement);
+                
+                resultArea.innerText = "Camera opened. Capture a photo and click 'Correct Me' to analyze.";
+            })
+            .catch(function (error) {
+                resultArea.innerText = "Error opening the camera: " + error.message;
+            });
+    } else {
+        resultArea.innerText = "Camera access is not supported in this browser.";
+    }
+}
+
+function displayImage(image) {
+    const resultArea = document.getElementById('resultArea');
+
+    // Clear previous content
+    resultArea.innerHTML = "";
+
+    // Display the chosen image on the page
+    const imageContainer = document.createElement('div');
+    imageContainer.style.marginTop = '10px';
+
+    const imgElement = document.createElement('img');
+    imgElement.src = URL.createObjectURL(image);
+    imgElement.style.maxWidth = '100%';
+    imgElement.style.height = 'auto';
+
+    imageContainer.appendChild(imgElement);
+    resultArea.appendChild(imageContainer);
+}
+
+function correctMe() {
+    // Placeholder function for backend correction
+    const resultArea = document.getElementById('resultArea');
+    resultArea.innerText = "Analyzing... (Backend functionality to be implemented)";
+    // Perform your backend correction logic here
+    // This is where you would send the image data to your backend (OCR and ChatGPT integration).
+}
+
+    </script>
+</body>
+</html>

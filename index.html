@@ -42,81 +42,55 @@
         }
 
         function openCamera() {
-            const resultArea = document.getElementById('resultArea');
-            const videoContainer = document.createElement('div');
-            videoContainer.id = 'videoContainer';
-            resultArea.appendChild(videoContainer);
+    const resultArea = document.getElementById('resultArea');
+    const videoContainer = document.createElement('div');
+    videoContainer.id = 'videoContainer';
+    resultArea.appendChild(videoContainer);
 
-            // Check for browser support
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                    .then(function (stream) {
-                        videoStream = stream;
+    // Check for browser support
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function (stream) {
+                videoStream = stream;
 
-                        // Create video element
-                        const videoElement = document.createElement('video');
-                        videoElement.id = 'cameraFeed';
-                        videoElement.autoplay = true;
-                        videoElement.srcObject = stream;
+                // Create video element
+                const videoElement = document.createElement('video');
+                videoElement.id = 'cameraFeed';
+                videoElement.autoplay = true;
+                videoElement.srcObject = stream;
 
-                        // Append video element to the container
-                        videoContainer.appendChild(videoElement);
+                // Append video element to the container
+                videoContainer.appendChild(videoElement);
 
-                        // Create canvas for drawing video frames
-                        const canvas = document.createElement('canvas');
-                        canvas.width = 300; // Adjust the size as needed
-                        canvas.height = 300; // Adjust the size as needed
-                        videoContainer.appendChild(canvas);
+                // Create canvas for drawing video frames
+                const canvas = document.createElement('canvas');
+                canvas.width = videoElement.videoWidth; // Set canvas width to video width
+                canvas.height = videoElement.videoHeight; // Set canvas height to video height
+                videoContainer.appendChild(canvas);
 
-                        // Draw video frames on the canvas
-                        const context = canvas.getContext('2d');
-                        videoElement.addEventListener('play', function () {
-                            const drawFrame = function () {
-                                if (videoElement.paused || videoElement.ended) {
-                                    return;
-                                }
-                                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-                                setTimeout(drawFrame, 10); // Adjust the interval as needed
-                            };
-                            drawFrame();
-                        });
+                // Draw video frames on the canvas
+                const context = canvas.getContext('2d');
+                videoElement.addEventListener('play', function () {
+                    const drawFrame = function () {
+                        if (videoElement.paused || videoElement.ended) {
+                            return;
+                        }
+                        context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                        requestAnimationFrame(drawFrame);
+                    };
+                    drawFrame();
+                });
 
-                        resultArea.innerText = "Camera opened. Capture a photo and click 'Correct Me' to analyze.";
-                    })
-                    .catch(function (error) {
-                        resultArea.innerText = "Error opening the camera: " + error.message;
-                    });
-            } else {
-                resultArea.innerText = "Camera access is not supported in this browser.";
-            }
-        }
+                resultArea.innerText = "Camera opened. Capture a photo and click 'Correct Me' to analyze.";
+            })
+            .catch(function (error) {
+                resultArea.innerText = "Error opening the camera: " + error.message;
+            });
+    } else {
+        resultArea.innerText = "Camera access is not supported in this browser.";
+    }
+}
 
-        function displayImage(image) {
-            const resultArea = document.getElementById('resultArea');
-
-            // Clear previous content
-            resultArea.innerHTML = "";
-
-            // Display the chosen image on the page
-            const imageContainer = document.createElement('div');
-            imageContainer.style.marginTop = '10px';
-
-            const imgElement = document.createElement('img');
-            imgElement.src = URL.createObjectURL(image);
-            imgElement.style.maxWidth = '100%';
-            imgElement.style.height = 'auto';
-
-            imageContainer.appendChild(imgElement);
-            resultArea.appendChild(imageContainer);
-        }
-
-        function correctMe() {
-            // Placeholder function for backend correction
-            const resultArea = document.getElementById('resultArea');
-            resultArea.innerText = "Analyzing... (Backend functionality to be implemented)";
-            // Perform your backend correction logic here
-            // This is where you would send the image data to your backend (OCR and ChatGPT integration).
-        }
     </script>
 </body>
 </html>

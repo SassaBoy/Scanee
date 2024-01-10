@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,82 +23,100 @@
     </div>
 
     <script>
-      // script.js
+        // script.js
 
-let videoStream;
+        let videoStream;
 
-function uploadImage() {
-    const imageInput = document.getElementById('imageInput');
-    const resultArea = document.getElementById('resultArea');
+        function uploadImage() {
+            const imageInput = document.getElementById('imageInput');
+            const resultArea = document.getElementById('resultArea');
 
-    // Check if a file is selected
-    if (imageInput.files.length > 0) {
-        const selectedImage = imageInput.files[0];
-        displayImage(selectedImage);
-        resultArea.innerText = "Image selected. Click 'Correct Me' to analyze.";
-    } else {
-        resultArea.innerText = "Please choose an image first.";
-    }
-}
+            // Check if a file is selected
+            if (imageInput.files.length > 0) {
+                const selectedImage = imageInput.files[0];
+                displayImage(selectedImage);
+                resultArea.innerText = "Image selected. Click 'Correct Me' to analyze.";
+            } else {
+                resultArea.innerText = "Please choose an image first.";
+            }
+        }
 
-function openCamera() {
-    const resultArea = document.getElementById('resultArea');
-    const videoContainer = document.createElement('div');
-    videoContainer.id = 'videoContainer';
-    resultArea.appendChild(videoContainer);
+        function openCamera() {
+            const resultArea = document.getElementById('resultArea');
+            const videoContainer = document.createElement('div');
+            videoContainer.id = 'videoContainer';
+            resultArea.appendChild(videoContainer);
 
-    // Check for browser support
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-            .then(function (stream) {
-                videoStream = stream;
+            // Check for browser support
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                    .then(function (stream) {
+                        videoStream = stream;
 
-                // Create video element
-                const videoElement = document.createElement('video');
-                videoElement.id = 'cameraFeed';
-                videoElement.autoplay = true;
-                videoElement.srcObject = stream;
+                        // Create video element
+                        const videoElement = document.createElement('video');
+                        videoElement.id = 'cameraFeed';
+                        videoElement.autoplay = true;
+                        videoElement.srcObject = stream;
 
-                // Append video element to the container
-                videoContainer.appendChild(videoElement);
-                
-                resultArea.innerText = "Camera opened. Capture a photo and click 'Correct Me' to analyze.";
-            })
-            .catch(function (error) {
-                resultArea.innerText = "Error opening the camera: " + error.message;
-            });
-    } else {
-        resultArea.innerText = "Camera access is not supported in this browser.";
-    }
-}
+                        // Append video element to the container
+                        videoContainer.appendChild(videoElement);
 
-function displayImage(image) {
-    const resultArea = document.getElementById('resultArea');
+                        // Create canvas for drawing video frames
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 300; // Adjust the size as needed
+                        canvas.height = 300; // Adjust the size as needed
+                        videoContainer.appendChild(canvas);
 
-    // Clear previous content
-    resultArea.innerHTML = "";
+                        // Draw video frames on the canvas
+                        const context = canvas.getContext('2d');
+                        videoElement.addEventListener('play', function () {
+                            const drawFrame = function () {
+                                if (videoElement.paused || videoElement.ended) {
+                                    return;
+                                }
+                                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                                setTimeout(drawFrame, 10); // Adjust the interval as needed
+                            };
+                            drawFrame();
+                        });
 
-    // Display the chosen image on the page
-    const imageContainer = document.createElement('div');
-    imageContainer.style.marginTop = '10px';
+                        resultArea.innerText = "Camera opened. Capture a photo and click 'Correct Me' to analyze.";
+                    })
+                    .catch(function (error) {
+                        resultArea.innerText = "Error opening the camera: " + error.message;
+                    });
+            } else {
+                resultArea.innerText = "Camera access is not supported in this browser.";
+            }
+        }
 
-    const imgElement = document.createElement('img');
-    imgElement.src = URL.createObjectURL(image);
-    imgElement.style.maxWidth = '100%';
-    imgElement.style.height = 'auto';
+        function displayImage(image) {
+            const resultArea = document.getElementById('resultArea');
 
-    imageContainer.appendChild(imgElement);
-    resultArea.appendChild(imageContainer);
-}
+            // Clear previous content
+            resultArea.innerHTML = "";
 
-function correctMe() {
-    // Placeholder function for backend correction
-    const resultArea = document.getElementById('resultArea');
-    resultArea.innerText = "Analyzing... (Backend functionality to be implemented)";
-    // Perform your backend correction logic here
-    // This is where you would send the image data to your backend (OCR and ChatGPT integration).
-}
+            // Display the chosen image on the page
+            const imageContainer = document.createElement('div');
+            imageContainer.style.marginTop = '10px';
 
+            const imgElement = document.createElement('img');
+            imgElement.src = URL.createObjectURL(image);
+            imgElement.style.maxWidth = '100%';
+            imgElement.style.height = 'auto';
+
+            imageContainer.appendChild(imgElement);
+            resultArea.appendChild(imageContainer);
+        }
+
+        function correctMe() {
+            // Placeholder function for backend correction
+            const resultArea = document.getElementById('resultArea');
+            resultArea.innerText = "Analyzing... (Backend functionality to be implemented)";
+            // Perform your backend correction logic here
+            // This is where you would send the image data to your backend (OCR and ChatGPT integration).
+        }
     </script>
 </body>
 </html>
